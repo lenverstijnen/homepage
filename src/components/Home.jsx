@@ -1,7 +1,22 @@
-import React from "react";
+import React from 'react'
+import TodoList from './todos/TodoList'
+import { makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles({
+  root: {
+    display: 'flex',
+    justifyContent: 'center',
+  },
+})
 
 const Home = () => {
-  return <h1>This is Home</h1>;
-};
+  const classes = useStyles()
 
-export default Home;
+  return (
+    <div className={classes.root}>
+      <TodoList />
+    </div>
+  )
+}
+
+export default Home

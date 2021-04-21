@@ -1,8 +1,7 @@
-import "./App.css";
-import { Switch, Route, Redirect } from "react-router-dom";
-import Home from "./components/Home";
-import NotFound from "./components/NotFound";
-import MyAppBar from "./components/MyAppBar";
+import { Switch, Route, Redirect } from 'react-router-dom'
+import Home from './components/Home'
+import NotFound from './components/NotFound'
+import MyAppBar from './components/MyAppBar'
 
 function App() {
   return (
@@ -16,7 +15,7 @@ function App() {
         </Switch>
       </div>
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
