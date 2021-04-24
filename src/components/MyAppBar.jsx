@@ -1,27 +1,28 @@
-import React from "react";
-import { makeStyles, AppBar, Toolbar, Typography } from "@material-ui/core";
+import React from 'react'
+import { makeStyles, AppBar, Toolbar, Typography } from '@material-ui/core'
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: "#4a4a4a",
+    marginBottom: '30px',
   },
   title: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
+    color: theme.palette.text.primary,
   },
-});
+}))
 
 const MyAppBar = () => {
-  const classes = useStyles();
+  const classes = useStyles()
 
   return (
-    <AppBar className={classes.root} position="static">
+    <AppBar className={classes.root} color="primary" position="static">
       <Toolbar>
         <Typography className={classes.title} variant="h4">
           Noldy's Homepage
         </Typography>
       </Toolbar>
     </AppBar>
-  );
-};
+  )
+}
 
-export default MyAppBar;
+export default MyAppBar

@@ -1,5 +1,5 @@
 import React from 'react'
-import TodoList from './todos/TodoList'
+import TodoList from './todoList/TodoList'
 import { makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles({
