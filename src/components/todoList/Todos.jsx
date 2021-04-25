@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
+import { TodosContext } from '../../context/todos'
 import {
   makeStyles,
   Divider,
@@ -31,7 +32,7 @@ const useStyles = makeStyles({
 
 const Todos = () => {
   const classes = useStyles()
-  const [todos, setTodos] = useState([])
+  const [todos, setTodos] = useContext(TodosContext)
   const [input, setInput] = useState({ addTodo: '', editTodo: '' })
   const [hover, setHover] = useState(null)
   const [editedTodo, setEditedTodo] = useState(null)

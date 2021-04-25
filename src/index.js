@@ -6,12 +6,15 @@ import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { ThemeProvider } from '@material-ui/styles'
 import { darkTheme } from './themesAndStyles/darkTheme'
+import { TodosContextProvider } from './context/todos'
 
 ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <ThemeProvider theme={darkTheme}>
-        <App />
+        <TodosContextProvider>
+          <App />
+        </TodosContextProvider>
       </ThemeProvider>
     </BrowserRouter>
   </React.StrictMode>,
