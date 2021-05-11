@@ -10,6 +10,7 @@ import {
   TextField,
   Button,
   IconButton,
+  LinearProgress,
 } from '@material-ui/core'
 import {
   RadioButtonUnchecked,
@@ -36,20 +37,24 @@ const Todos = () => {
   const [input, setInput] = useState({ addTodo: '', editTodo: '' })
   const [hover, setHover] = useState(null)
   const [editedTodo, setEditedTodo] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isUpdating, setIsUpdating] = useState(false)
 
   useEffect(() => {
     const fetchTodos = async () => {
+      setIsLoading(true)
       const { data: todos } = await axios.get(
         `${process.env.REACT_APP_NODE_API_URI}api/todos`
       )
       setTodos(todos)
+      setIsLoading(false)
     }
 
     fetchTodos()
   }, [setTodos])
 
-  const handleInputChange = ({ currentTarget: input }) => {
-    setInput({ ...input, [input.name]: input.value })
+  const handleInputChange = ({ currentTarget }) => {
+    setInput({ ...input, [currentTarget.name]: currentTarget.value })
   }
 
   const handleKeyDown = (e) => {
@@ -59,27 +64,38 @@ const Todos = () => {
   }
 
   const handleAdd = async () => {
+    setIsLoading(true)
     const newTodo = { text: input.addTodo, isDone: false }
-    const newTodos = [...todos, newTodo]
 
-    setTodos(newTodos)
     setInput({ ...input, addTodo: '' })
+    try {
+      const { data: addedTodo } = await axios.post(
+        `${process.env.REACT_APP_NODE_API_URI}api/todos`,
+        newTodo
+      )
+      setTodos([...todos, addedTodo])
+    } catch (err) {
+      alert('Request failed...')
+    }
 
-    await axios.post(`${process.env.REACT_APP_NODE_API_URI}api/todos`, newTodo)
+    setIsLoading(false)
   }
 
   const handleToggle = async (todo) => {
     const newTodo = { ...todo, isDone: !todo.isDone }
     const index = todos.indexOf(todo)
-    const todoArr = [...todos]
-    todoArr.splice(index, 1, newTodo)
+    let todoArr = [...todos]
 
-    setTodos(todoArr)
-
-    await axios.put(
-      `${process.env.REACT_APP_NODE_API_URI}api/todos/${todo._id}`,
-      newTodo
-    )
+    try {
+      const { data: toggledTodo } = await axios.put(
+        `${process.env.REACT_APP_NODE_API_URI}api/todos/${todo._id}`,
+        newTodo
+      )
+      todoArr.splice(index, 1, toggledTodo)
+      setTodos(todoArr)
+    } catch (err) {
+      alert('Request failed...')
+    }
   }
 
   const handleEdit = async (event, todo) => {
@@ -94,39 +110,51 @@ const Todos = () => {
   }
 
   const handleUpdate = async () => {
-    const index = todos.indexOf(editedTodo)
+    setIsUpdating(true)
     const newTodo = { ...editedTodo, text: input.editTodo }
-    const todoArr = [...todos]
-    todoArr.splice(index, 1, newTodo)
-    setTodos(todoArr)
+    const index = todos.indexOf(editedTodo)
+    let todoArr = [...todos]
 
-    await axios.put(
-      `${process.env.REACT_APP_NODE_API_URI}api/todos/${newTodo._id}`,
-      newTodo
-    )
+    try {
+      const { data: updatedTodo } = await axios.put(
+        `${process.env.REACT_APP_NODE_API_URI}api/todos/${newTodo._id}`,
+        newTodo
+      )
+      todoArr.splice(index, 1, updatedTodo)
+      setTodos(todoArr)
+    } catch (err) {
+      alert('Request failed...')
+    }
 
     handleCloseEdit()
+    setIsUpdating(false)
   }
 
   const handleDelete = async (event, todo) => {
-    const oldTodos = [...todos]
-    const todoArr = oldTodos.filter((t) => t !== todo)
-    setTodos(todoArr)
     event.stopPropagation()
+    setIsLoading(true)
+    const todoArr = [...todos]
 
-    await axios.delete(
-      `${process.env.REACT_APP_NODE_API_URI}api/todos/${todo._id}`
-    )
+    try {
+      const { data: deletedTodo } = await axios.delete(
+        `${process.env.REACT_APP_NODE_API_URI}api/todos/${todo._id}`
+      )
+      const newTodoArr = todoArr.filter((t) => t._id !== deletedTodo._id)
+      setTodos(newTodoArr)
+    } catch (err) {
+      alert('Request failed...')
+    }
+
+    setIsLoading(false)
   }
 
   return (
-    <List>
-      {todos.map((t) => {
-        return (
+    <div>
+      <List>
+        {todos.map((t) => (
           <ListItem
             button
-            disableRipple
-            key={t._id || t.text}
+            key={t._id}
             onClick={() => handleToggle(t)}
             onMouseEnter={() => setHover(t._id)}
             onMouseLeave={() => setHover(null)}
@@ -136,12 +164,13 @@ const Todos = () => {
             </ListItemIcon>
             <ListItemText
               className={t.isDone ? classes.todoTextDone : null}
-              key={t._id || t.text}
+              key={t._id}
               primary={t.text}
             />
             <ListItemIcon>
               {hover === t._id && (
                 <IconButton
+                  disabled={isLoading}
                   size="small"
                   onClick={(event) => handleEdit(event, t)}
                 >
@@ -152,6 +181,7 @@ const Todos = () => {
             <ListItemIcon>
               {hover === t._id && (
                 <IconButton
+                  disabled={isLoading}
                   size="small"
                   onClick={(event) => handleDelete(event, t)}
                 >
@@ -160,37 +190,42 @@ const Todos = () => {
               )}
             </ListItemIcon>
           </ListItem>
-        )
-      })}
-      {todos.length > 0 && <Divider />}
-      <ListItem key="addTodo">
-        <TextField
-          className={classes.input}
-          name="addTodo"
-          fullWidth
-          color="secondary"
-          placeholder="Add todo..."
-          value={input.addTodo}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
+        ))}
+        {todos.length > 0 && <Divider />}
+        <ListItem key="addTodo">
+          <TextField
+            className={classes.input}
+            name="addTodo"
+            fullWidth
+            color="secondary"
+            placeholder="Add todo..."
+            value={input.addTodo}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+          />
+          <div>
+            <Button
+              variant="outlined"
+              color="inherit"
+              startIcon={<AddCircleOutline />}
+              onClick={() => handleAdd()}
+              disabled={isLoading}
+            >
+              Add
+            </Button>
+          </div>
+        </ListItem>
+        <EditTodoDialog
+          isOpen={Boolean(editedTodo)}
+          input={input.editTodo}
+          onInputChange={handleInputChange}
+          onClose={handleCloseEdit}
+          onUpdate={handleUpdate}
+          isUpdating={isUpdating}
         />
-        <Button
-          variant="outlined"
-          color="inherit"
-          startIcon={<AddCircleOutline />}
-          onClick={() => handleAdd()}
-        >
-          Add
-        </Button>
-      </ListItem>
-      <EditTodoDialog
-        isOpen={Boolean(editedTodo)}
-        input={input.editTodo}
-        onInputChange={handleInputChange}
-        onClose={handleCloseEdit}
-        onUpdate={handleUpdate}
-      />
-    </List>
+      </List>
+      {isLoading && <LinearProgress color="secondary" />}
+    </div>
   )
 }
 

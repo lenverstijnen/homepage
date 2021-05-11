@@ -7,6 +7,7 @@ import {
   Button,
   DialogContent,
   Divider,
+  LinearProgress,
 } from '@material-ui/core'
 import { Cancel, Save } from '@material-ui/icons'
 
@@ -16,7 +17,14 @@ const EditTodoDialog = ({
   onInputChange,
   onClose,
   onUpdate,
+  isUpdating,
 }) => {
+  const handleKeyDown = (e) => {
+    if (e.keyCode === 13) {
+      onUpdate()
+    }
+  }
+
   return (
     <Dialog fullWidth open={isOpen} onClose={onClose}>
       <DialogTitle>Edit todo</DialogTitle>
@@ -24,6 +32,7 @@ const EditTodoDialog = ({
       <DialogContent>
         <TextField
           fullWidth
+          onKeyDown={handleKeyDown}
           name="editTodo"
           color="secondary"
           value={input}
@@ -48,6 +57,7 @@ const EditTodoDialog = ({
           Save
         </Button>
       </DialogActions>
+      {isUpdating && <LinearProgress color="secondary" />}
     </Dialog>
   )
 }
