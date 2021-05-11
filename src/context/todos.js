@@ -12,4 +12,9 @@ const TodosContextProvider = (props) => {
   )
 }
 
+// Jo man, hier kun je een hook maken, useTodos en die exporteren. Dan hoef je in je components niet steeds
+// de useContext hook te implementeren. 
+
+// voorbeeld: export const useTodos = useContext(TodosContext) 
+
 export { TodosContext, TodosContextProvider }
